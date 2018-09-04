@@ -1,6 +1,9 @@
 {
-  "name": "store-lib",
+  "name": "ngx-simple-store",
   "version": "0.0.9",
+  "description": "simple ngx application store",
+  "repository": "malikov917/ngx-simple-store",
+  "homepage": "https://github.com/malikov917/ngx-simple-store",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -21,6 +24,7 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "core-js": "^2.5.4",
+    "ngx-simple-store": "0.0.9",
     "rxjs": "^6.0.0",
     "zone.js": "~0.8.26"
   },
