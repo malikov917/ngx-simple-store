@@ -1,0 +1,20 @@
+{
+  "name": "ngx-simple-store",
+  "version": "0.0.5",
+  "description": "simple ngx application store",
+  "license": "MIT",
+  "keywords": [
+    "ng2",
+    "ngx",
+    "angular-store",
+    "store",
+    "ng-store",
+    "ngx-store",
+    "ngx-application-store",
+    "subject-store"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+  }
+}

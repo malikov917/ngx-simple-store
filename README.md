@@ -1,27 +1,119 @@
-# StoreLib
+# Angular Application Store
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.1.5.
+Simple store for application based on Subject service and your enum for describing application
+state. There are three ways to use it. Subscribe for latest changes, get value once or subscribe
+via async pipe in template directly.
 
-## Development server
+## Example
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+###### #1 Installing to project
+> npm i ngx-simple-store --save
 
-## Code scaffolding
+###### #2 Available methods:
+> select(name); // here you can subscribe by name
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+> next(name, value); // setting a new value
 
-## Build
+> getOnce(name); // get what you want without subscription 
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+###### #3 Initialization of module and making your app state as enum:
+```
+//Your ./app.module.ts:
+import { NgxSimpleStore } from 'ngx-simple-store';
 
-## Running unit tests
+export enum AppState {
+  isSideBarOpened = 'isSideBarOpened',
+  isDarkTheme = 'isDarkTheme',
+  refreshTableState = 'refreshTableState'
+}
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    NgxSimpleStoreModule.forRoot(AppState) //our module
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
 
-## Running end-to-end tests
+```
+###### #4.1 Adding to component "A":
+```
+@Component({
+  selector: 'app-component',
+  template:
+  `<button (click)="toggleSideBar()">Toggle Sidebar!</button>`
+})
+import { NgxSimpleStore } from 'ngx-simple-store';
+...
+export class AppComponent {
+  constructor(private appStore: NgxSimpleStoreService) { }
+  
+  toggleSideBar() {
+    this.appStore.next(AppState.isSideBarOpened, !this.appStore.getOnce(AppState.isSideBarOpened));
+  }
+}
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+###### #4.2 Using in component "B":
+> Three ways to use this service: by subscription, getting once, or using pipe 'async'
+directly in template (my favorite one, for this you need to do this variable public).
+```
+import { NgxSimpleStore } from 'ngx-simple-store';
+@Component({
+  selector: 'second-component',
+  template:
+  `<div>
+    One more way to use your service!
+    {{ appStore.select(AppState.isSideBarOpened) | async }}
+  </div>`
+})
+export class SecondComponent {
+  isSideBarOpened;
+  constructor(public appStore: NgxSimpleStoreService) {
+  
+    // subscribe for getting the latest changes
+    this.appStore.select(AppState.isSideBarOpened)
+        .subscribe(value => console.log(value));
+        
+    //get value once
+    this.isSideBarOpened = this.appStore.getOnce(AppState.isSideBarOpened);
+        
+  }
+}
+```
 
-## Further help
+## Problem
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+Sometimes making special services for managing state of sidebar,
+dark theme of template, width of window, some events between components that are
+far from each of other and so on is a headache for everyone.
+
+In cases when you need to manage some app states that are used in many places
+we're doing special service with Subject variable, writing methods for
+subscribing, adding a new value, getting value once. But when we have a lot
+of such places it becomes difficult and your code becomes too complicated. 
+
+## Solution
+
+It's just a first version of universal service which you can inject to your component "A",
+inject to component "B" and use it as common service with common state (like a singleton if you want).
+I have added an utility function that will convert your enum to individual Subjects by names so it 
+works just as a Subject service that was made for convenient way to work with some common states.
+
+## Use cases!
+
+Use distinctUntilChanged for not getting same values (useful in some cases).
+Use debounceTime for getting latest value in a period of time
+
+```
+this.store
+    .select('isOpenedSidebar')
+    .pipe(distinctUntilChanged(), debounceTime(500))
+    .subscribe(value => {
+      this.isSidebarOpen = value;
+    });
+```
